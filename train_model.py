@@ -43,3 +43,33 @@ print(f"Accuracy:  {accuracy:.3f}")
 print(f"Precision: {precision:.3f}")
 print(f"Recall:    {recall:.3f}")
 print(f"F1:        {f1:.3f}")
+
+# ---- Step 7: Performance report charts ----
+import matplotlib.pyplot as plt
+from sklearn.metrics import ConfusionMatrixDisplay
+from ml.data import NUMERIC_FEATURES, CATEGORICAL_FEATURES
+
+# Chart A: Confusion matrix - shows right and wrong predictions in a 2x2 grid
+ConfusionMatrixDisplay.from_predictions(
+    y_test,
+    preds,
+    display_labels=["Stayed", "Dropped out"],
+    cmap="Blues",
+)
+plt.title("Confusion matrix (test students)")
+plt.savefig("charts/05_confusion_matrix.png", bbox_inches="tight")
+plt.close()
+
+# Chart B: Feature importance - which factors the model relied on most
+feature_names = NUMERIC_FEATURES + list(encoder.get_feature_names_out(CATEGORICAL_FEATURES))
+importance = pd.Series(model.feature_importances_, index=feature_names)
+top10 = importance.sort_values().tail(10)   # the 10 most important, smallest first
+
+plt.figure(figsize=(7, 5))
+plt.barh(top10.index, top10, color="#2a78d6")
+plt.title("Top 10 factors the model relies on")
+plt.xlabel("Importance")
+plt.savefig("charts/06_feature_importance.png", bbox_inches="tight")
+plt.close()
+
+print("Performance charts saved in the charts folder")
