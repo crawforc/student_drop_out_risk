@@ -26,3 +26,19 @@ for column in text_columns:
 # Save cleaned data as new file
 df.to_csv("data/clean_student_data.csv", index=False)
 print("Clean data saved. Rows and columns:", df.shape)
+
+# Show all columns when printing
+pd.set_option("display.max_columns", None)
+
+# Summary stats for every number column (count, mean, min, max, etc.)
+# .T flips the table so each column is a row - easier to read
+# .round(2) keeps 2 decimal places
+print(df.describe().T.round(2))
+
+# What percent of students dropped out vs stayed?
+print("Dropout rate:")
+print(df["dropout"].value_counts(normalize=True).round(2))
+
+# Compare the average of each number column for students who stayed (0) vs dropped out (1)
+print("Averages by dropout:")
+print(df.groupby("dropout").mean(numeric_only=True).T.round(2))
