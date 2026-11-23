@@ -3,6 +3,7 @@
 import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from ml.data import process_data
 
 
 def train_model(X_train, y_train):
@@ -57,3 +58,27 @@ def load_model(path):
     Loads a saved model (or encoder) from a file.
     """
     return joblib.load(path)
+
+def performance_on_slice(data, column_name, slice_value, model, encoder):
+    """
+    Checks how well the model works for ONE group of students.
+    Example: column_name="gender", slice_value="Female"
+
+    data        - the test data (must still include the column being checked)
+    column_name - the column that defines the group
+    slice_value - the group to check
+    model       - the trained model
+    encoder     - the trained encoder
+
+    Returns: number of students in the group, accuracy, precision, recall, f1
+    """
+    # Keep only the students in this group
+    slice_data = data[data[column_name] == slice_value]
+
+    # Prepare their data and make predictions
+    X_slice, y_slice, _ = process_data(slice_data, training=False, encoder=encoder)
+    preds = inference(model, X_slice)
+
+    # Score the predictions for just this group
+    accuracy, precision, recall, f1 = compute_model_metrics(y_slice, preds)
+    return len(slice_data), accuracy, precision, recall, f1
