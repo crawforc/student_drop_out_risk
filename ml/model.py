@@ -17,6 +17,7 @@ def train_model(X_train, y_train):
         n_estimators=100,   # build 100 decision trees and let them vote
         max_depth=10,       # limit how deep each tree grows (keeps the file small)
         random_state=42,    # same result every time we run it
+        class_weight="balanced",  # treat a missed dropout as a bigger mistake
     )
     model.fit(X_train, y_train)
     return model
