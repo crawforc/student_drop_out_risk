@@ -73,3 +73,41 @@ plt.savefig("charts/06_feature_importance.png", bbox_inches="tight")
 plt.close()
 
 print("Performance charts saved in the charts folder")
+
+# ---- Step 8: Fairness report - check the model for each student group ----
+from ml.model import performance_on_slice
+
+# The columns that define the student groups we want to check
+fairness_columns = [
+    "gender",
+    "nationality",
+    "family_income_level",
+    "first_generation",
+    "disability_status",
+    "international_student",
+]
+
+# An empty list to collect one row of results per group
+results = []
+
+# Loop through each column, then through each group in that column
+for column in fairness_columns:
+    for value in sorted(test[column].unique()):
+        count, accuracy, precision, recall, f1 = performance_on_slice(
+            test, column, value, model, encoder
+        )
+        results.append({
+            "column": column,
+            "group": value,
+            "students": count,
+            "accuracy": round(accuracy, 3),
+            "precision": round(precision, 3),
+            "recall": round(recall, 3),
+            "f1": round(f1, 3),
+        })
+
+# Turn the list into a table, print it, and save it
+fairness_report = pd.DataFrame(results)
+print(fairness_report.to_string(index=False))
+fairness_report.to_csv("fairness_report.csv", index=False)
+print("Fairness report saved as fairness_report.csv")
